@@ -1,0 +1,42 @@
+name: Deploy to Lambda
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Instalar dependencias
+        run: |
+          pip install boto3 requests python-dotenv -t package/
+          cp monitor.py package/
+
+      - name: Crear ZIP
+        run: |
+          cd package
+          zip -r ../lambda.zip .
+
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Desplegar en Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name finops-monitor \
+            --zip-file fileb://lambda.zip
