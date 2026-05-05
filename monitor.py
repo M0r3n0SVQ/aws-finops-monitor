@@ -1,27 +1,26 @@
 import boto3
 import os
-from dotenv import load_dotenv
-from datetime import datetime, timedelta
-import requests
+import urllib.request
+import urllib.parse
+from datetime import datetime
 
-load_dotenv()
 def enviar_alerta_telegram(mensaje):
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    params = {
+    datos = urllib.parse.urlencode({
         'chat_id': chat_id,
         'text': mensaje
-    }
-    requests.get(url, params=params)
+    }).encode()
+    urllib.request.urlopen(url, datos)
 
 def get_costes_mes_actual():
     try:
         cliente = boto3.client(
             'ce',
             region_name='us-east-1',
-            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+            aws_access_key_id=os.getenv('FINOPS_ACCESS_KEY'),
+            aws_secret_access_key=os.getenv('FINOPS_SECRET_KEY')
         )
 
         hoy = datetime.today()
