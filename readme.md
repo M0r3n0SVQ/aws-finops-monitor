@@ -25,15 +25,19 @@ Cada 24 horas, automáticamente:
 ## 🏗️ Arquitectura
 
 ```
+git push
+    ↓
+GitHub Actions (CI/CD)
+    ↓
+AWS Lambda
+    ↓
 EventBridge (cada 24h)
-        ↓
-   AWS Lambda
-        ↓
+    ↓
 AWS Cost Explorer API
-        ↓
-  Bot de Telegram
-        ↓
-     📱 Móvil
+    ↓
+Bot de Telegram
+    ↓
+📱 Móvil
 ```
 
 Toda la infraestructura desplegada con Terraform.
@@ -50,6 +54,7 @@ Toda la infraestructura desplegada con Terraform.
 | AWS EventBridge | Automatización diaria |
 | AWS Cost Explorer | Lectura de costes |
 | Terraform | Infraestructura como código |
+| GitHub Actions | Pipeline CI/CD |
 | Telegram Bot API | Alertas al móvil |
 
 ---
@@ -106,7 +111,8 @@ terraform apply
 ✅ Desplegado en AWS Lambda  
 ✅ Automatización diaria con EventBridge  
 ✅ Infraestructura como código con Terraform  
+✅ Pipeline CI/CD con GitHub Actions  
 
 **Próximos pasos:**  
 Detección de anomalías  
-Pipeline CI/CD
+Tests automáticos en el pipeline

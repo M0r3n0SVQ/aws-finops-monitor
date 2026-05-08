@@ -13,7 +13,8 @@ def enviar_alerta_telegram(mensaje):
         'text': mensaje
     }).encode()
     urllib.request.urlopen(url, datos)
-
+    
+# Cost Explorer solo está disponible en us-east-1 independientemente de la región del proyecto
 def get_costes_mes_actual():
     try:
         cliente = boto3.client(
