@@ -6,6 +6,7 @@
 ![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-purple?logo=terraform)
 ![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-green)
+![Last Commit](https://img.shields.io/github/last-commit/M0r3n0SVQ/aws-finops-monitor)
 
 Proyecto práctico construido durante el Programa Avanzado en Cloud Computing de UNIR.
 
@@ -59,6 +60,23 @@ Toda la infraestructura desplegada con Terraform.
 
 ---
 
+## 📁 Estructura
+
+```
+aws-finops-monitor/
+├── .github/workflows/deploy.yml    # Pipeline CI/CD
+├── terraform/                       # Infraestructura como código
+│   ├── main.tf
+│   ├── variables.tf
+│   └── outputs.tf
+├── monitor.py                       # Lógica principal
+├── requirements.txt                 # Dependencias Python
+├── .env.example                     # Plantilla de variables
+└── README.md
+```
+
+---
+
 ## 🚀 Instalación en local
 
 **1. Clona el repositorio**
@@ -71,22 +89,34 @@ cd aws-finops-monitor
 **2. Crea el entorno virtual**
 
 ```bash
-python -m venv venv
+python3 -m venv venv
+
+# Linux / macOS
+source venv/bin/activate
+
+# Linux con Fish shell
+source venv/bin/activate.fish
+
+# Windows
 venv\Scripts\activate
-pip install boto3 python-dotenv requests
 ```
 
-**3. Crea el archivo `.env`**
+**3. Instala las dependencias**
+
+```bash
+pip install -r requirements.txt
+```
+
+**4. Crea el archivo `.env`** a partir de `.env.example`:
 
 ```
-AWS_ACCESS_KEY_ID=tu_access_key
-AWS_SECRET_ACCESS_KEY=tu_secret_key
-AWS_DEFAULT_REGION=eu-south-2
+FINOPS_ACCESS_KEY=tu_access_key
+FINOPS_SECRET_KEY=tu_secret_key
 TELEGRAM_BOT_TOKEN=tu_token
 TELEGRAM_CHAT_ID=tu_chat_id
 ```
 
-**4. Ejecuta**
+**5. Ejecuta**
 
 ```bash
 python monitor.py
@@ -114,5 +144,5 @@ terraform apply
 ✅ Pipeline CI/CD con GitHub Actions  
 
 **Próximos pasos:**  
-Detección de anomalías  
-Tests automáticos en el pipeline
+🔜 Detección de anomalías en costes  
+🔜 Tests automáticos en el pipeline  

@@ -20,7 +20,7 @@ jobs:
 
       - name: Instalar dependencias
         run: |
-          pip install boto3 requests python-dotenv -t package/
+          pip install -r requirements.txt -t package/
           cp monitor.py package/
 
       - name: Crear ZIP
