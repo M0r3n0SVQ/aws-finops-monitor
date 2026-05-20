@@ -1,130 +1,57 @@
-# 🔍 AWS FinOps Monitor
+# AWS FinOps Monitor
 
-> Monitor de costes de AWS con alertas automáticas a Telegram
+Monitor de costes de AWS con alertas a Telegram.
 
 ![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)
 ![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-purple?logo=terraform)
-![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-green)
-![Last Commit](https://img.shields.io/github/last-commit/M0r3n0SVQ/aws-finops-monitor)
 
-Proyecto práctico construido durante el Programa Avanzado en Cloud Computing de UNIR.
+## Qué hace
 
----
+Cada 24h se conecta a Cost Explorer, lee los costes del mes, los agrupa por servicio y manda el resumen a Telegram. También compara el coste del día con los 7 anteriores para detectar gastos anómalos.
 
-## ¿Qué hace?
+## Stack
 
-Cada 24 horas, automáticamente:
+Python + boto3, desplegado en Lambda con EventBridge para que se ejecute solo. Todo gestionado con Terraform y desplegado vía GitHub Actions.
 
-1. Se conecta a AWS Cost Explorer y lee los costes del mes
-2. Agrupa los gastos por servicio
-3. Manda un resumen a Telegram
-4. Si hay algún error, también lo notifica
-
----
-
-## 🏗️ Arquitectura
-
-```
-git push
-    ↓
-GitHub Actions (CI/CD)
-    ↓
-AWS Lambda
-    ↓
-EventBridge (cada 24h)
-    ↓
-AWS Cost Explorer API
-    ↓
-Bot de Telegram
-    ↓
-📱 Móvil
-```
-
-Toda la infraestructura desplegada con Terraform.
-
----
-
-## 🛠️ Tecnologías
-
-| Tecnología | Uso |
-|-----------|-----|
-| Python 3.14 | Script principal |
-| boto3 | SDK oficial de AWS |
-| AWS Lambda | Ejecución serverless |
-| AWS EventBridge | Automatización diaria |
-| AWS Cost Explorer | Lectura de costes |
-| Terraform | Infraestructura como código |
-| GitHub Actions | Pipeline CI/CD |
-| Telegram Bot API | Alertas al móvil |
-
----
-
-## 📁 Estructura
+## Estructura
 
 ```
 aws-finops-monitor/
-├── .github/workflows/deploy.yml    # Pipeline CI/CD
-├── terraform/                       # Infraestructura como código
+├── .github/workflows/deploy.yml
+├── terraform/
 │   ├── main.tf
 │   ├── variables.tf
 │   └── outputs.tf
-├── monitor.py                       # Lógica principal
-├── requirements.txt                 # Dependencias Python
-├── .env.example                     # Plantilla de variables
-└── README.md
+├── monitor.py
+├── requirements.txt
+└── .env.example
 ```
 
----
+## Probarlo en local
 
-## 🚀 Instalación en local
+Como mi cuenta de AWS está prácticamente a 0€, hay un modo demo con datos simulados:
 
-**1. Clona el repositorio**
+```bash
+python monitor.py --demo            # caso normal
+python monitor.py --demo --anomalia # caso alerta
+```
+
+En Lambda los flags se ignoran, usa datos reales.
+
+## Setup
 
 ```bash
 git clone https://github.com/M0r3n0SVQ/aws-finops-monitor.git
 cd aws-finops-monitor
-```
-
-**2. Crea el entorno virtual**
-
-```bash
-python3 -m venv venv
-
-# Linux / macOS
-source venv/bin/activate
-
-# Linux con Fish shell
-source venv/bin/activate.fish
-
-# Windows
-venv\Scripts\activate
-```
-
-**3. Instala las dependencias**
-
-```bash
+python -m venv venv
+source venv/bin/activate    # o venv\Scripts\activate en Windows
 pip install -r requirements.txt
-```
-
-**4. Crea el archivo `.env`** a partir de `.env.example`:
-
-```
-FINOPS_ACCESS_KEY=tu_access_key
-FINOPS_SECRET_KEY=tu_secret_key
-TELEGRAM_BOT_TOKEN=tu_token
-TELEGRAM_CHAT_ID=tu_chat_id
-```
-
-**5. Ejecuta**
-
-```bash
+cp .env.example .env        # rellenar las 4 variables
 python monitor.py
 ```
 
----
-
-## ☁️ Despliegue con Terraform
+## Despliegue
 
 ```bash
 cd terraform
@@ -132,17 +59,15 @@ terraform init
 terraform apply
 ```
 
----
+## Estado
 
-## ✅ Estado del proyecto
+Hecho:
+- Lectura de costes desde Cost Explorer + alertas Telegram
+- Despliegue en Lambda con EventBridge diario
+- Terraform + GitHub Actions
+- Detección de anomalías con media y desviación
+- Modo demo para iterar en local
 
-✅ Script Python conectado a AWS Cost Explorer  
-✅ Alertas automáticas a Telegram  
-✅ Desplegado en AWS Lambda  
-✅ Automatización diaria con EventBridge  
-✅ Infraestructura como código con Terraform  
-✅ Pipeline CI/CD con GitHub Actions  
-
-**Próximos pasos:**  
-🔜 Detección de anomalías en costes  
-🔜 Tests automáticos en el pipeline  
+Pendiente:
+- Tests con pytest
+- Detección de anomalías con datos reales de Cost Explorer (ahora solo funciona en modo demo)
