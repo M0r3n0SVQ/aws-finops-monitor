@@ -67,7 +67,7 @@ Hecho:
 - Terraform + GitHub Actions
 - Detección de anomalías con media y desviación
 - Modo demo para iterar en local
+- Tests con pytest
 
 Pendiente:
-- Tests con pytest
 - Detección de anomalías con datos reales de Cost Explorer (ahora solo funciona en modo demo)
