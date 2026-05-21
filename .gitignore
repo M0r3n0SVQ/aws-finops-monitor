@@ -9,3 +9,4 @@ terraform/terraform.tfstate.backup
 terraform/lambda.zip
 lambda-finops.zip
 package/
+.pytest_cache/
