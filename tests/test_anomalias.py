@@ -29,8 +29,7 @@ def test_calcula_media_correctamente():
 
     resultado = detectar_anomalia(historico, coste_ayer)
 
-    assert resultado['media'] == 999.0
-
+    assert resultado['media'] == 4.0
 
 def test_historico_insuficiente_no_es_anomalia():
     """Con menos de 2 datos no se puede calcular: no debe petar ni marcar anomalía."""
