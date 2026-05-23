@@ -2,6 +2,7 @@
 
 Monitor de costes de AWS con alertas a Telegram.
 
+[![Tests](https://github.com/M0r3n0SVQ/aws-finops-monitor/actions/workflows/deploy.yml/badge.svg)](https://github.com/M0r3n0SVQ/aws-finops-monitor/actions)
 ![Python](https://img.shields.io/badge/Python-3.14-blue?logo=python)
 ![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange?logo=amazon-aws)
 ![Terraform](https://img.shields.io/badge/IaC-Terraform-purple?logo=terraform)
