@@ -103,11 +103,10 @@ def formatear_mensaje_anomalia(deteccion, coste_ayer):
     """Formatea el mensaje de alerta cuando se detecta una anomalía."""
     exceso = coste_ayer - deteccion['umbral']
     return (
-        f"🚨 ALERTA: Coste anómalo detectado\n\n"
-        f"Coste de ayer: ${coste_ayer:.4f}\n"
-        f"Media últimos 7 días: ${deteccion['media']:.4f}\n"
-        f"Umbral de alerta: ${deteccion['umbral']:.4f}\n\n"
-        f"El coste de ayer supera el umbral en ${exceso:.4f}"
+        f"Coste de AWS más alto de lo normal\n"
+        f"Ayer: ${coste_ayer:.2f}\n"
+        f"Media últimos 7 días: ${deteccion['media']:.2f}\n"
+        f"Ayer gastaste ${exceso:.2f} mas de lo esperado"
     )
 
 
