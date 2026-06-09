@@ -37,6 +37,22 @@ resource "aws_iam_role_policy_attachment" "billing_readonly" {
   policy_arn = "arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess"
 }
 
+resource "aws_iam_role_policy" "lambda_cost_explorer" {
+  name = "lambda-cost-explorer"
+  role = aws_iam_role.lambda_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "ce:GetCostAndUsage"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_lambda_function" "finops_monitor" {
   filename      = "lambda.zip"
   function_name = "finops-monitor"
@@ -48,8 +64,6 @@ resource "aws_lambda_function" "finops_monitor" {
     variables = {
       TELEGRAM_BOT_TOKEN = var.telegram_bot_token
       TELEGRAM_CHAT_ID   = var.telegram_chat_id
-      FINOPS_ACCESS_KEY  = var.finops_access_key
-      FINOPS_SECRET_KEY  = var.finops_secret_key
     }
   }
 }
