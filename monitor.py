@@ -10,13 +10,10 @@ load_dotenv()
 
 
 def get_aws_client():
-    """Crea el cliente de Cost Explorer. us-east-1 obligatorio."""
-    return boto3.client(
-        'ce',
-        region_name='us-east-1',
-        aws_access_key_id=os.getenv('FINOPS_ACCESS_KEY'),
-        aws_secret_access_key=os.getenv('FINOPS_SECRET_KEY')
-    )
+    """Crea el cliente de Cost Explorer. us-east-1 obligatorio.
+    En Lambda usa el IAM Role automáticamente. En local usa las
+    credenciales del AWS CLI o del .env."""
+    return boto3.client('ce', region_name='us-east-1')
 
 
 def get_date_range():
