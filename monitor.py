@@ -17,7 +17,7 @@ def get_aws_client():
 
 def get_parametro(nombre):
     """Lee un parámetro de AWS Systems Manager Parameter Store."""
-    cliente = boto3.client('ssm', region_name='eu-south-2')
+    cliente = boto3.client('ssm', region_name='us-east-1')
     respuesta = cliente.get_parameter(
         Name=nombre,
         WithDecryption=True
