@@ -15,6 +15,15 @@ def get_aws_client():
     credenciales del AWS CLI o del .env."""
     return boto3.client('ce', region_name='us-east-1')
 
+def get_parametro(nombre):
+    """Lee un parámetro de AWS Systems Manager Parameter Store."""
+    cliente = boto3.client('ssm', region_name='eu-south-2')
+    respuesta = cliente.get_parameter(
+        Name=nombre,
+        WithDecryption=True
+    )
+    return respuesta['Parameter']['Value']
+
 
 def get_date_range():
     """Devuelve (inicio_mes, hoy) en formato YYYY-MM-DD."""
@@ -108,9 +117,9 @@ def formatear_mensaje_anomalia(deteccion, coste_ayer):
 
 
 def enviar_alerta_telegram(mensaje):
-    """Envía mensaje a Telegram."""
-    token = os.getenv('TELEGRAM_BOT_TOKEN')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    """Envía mensaje a Telegram. Lee credenciales de Parameter Store."""
+    token = get_parametro('/finops-monitor/telegram/bot-token')
+    chat_id = get_parametro('/finops-monitor/telegram/chat-id')
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     datos = urllib.parse.urlencode({
         'chat_id': chat_id,
