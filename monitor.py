@@ -118,20 +118,14 @@ def formatear_mensaje_anomalia(deteccion, coste_ayer):
 
 def enviar_alerta_telegram(mensaje):
     """Envía mensaje a Telegram. Lee credenciales de Parameter Store."""
-    print("DEBUG: pidiendo token a Parameter Store...")
     token = get_parametro('/finops-monitor/telegram/bot-token')
-    print(f"DEBUG: token obtenido OK (longitud: {len(token)})")
-    print("DEBUG: pidiendo chat_id a Parameter Store...")
     chat_id = get_parametro('/finops-monitor/telegram/chat-id')
-    print(f"DEBUG: chat_id obtenido OK (longitud: {len(chat_id)})")
-    print("DEBUG: enviando a Telegram...")
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     datos = urllib.parse.urlencode({
         'chat_id': chat_id,
         'text': mensaje
     }).encode()
     urllib.request.urlopen(url, datos)
-    print("DEBUG: mensaje enviado OK")
 
 def get_datos_demo(con_anomalia=False):
     """
