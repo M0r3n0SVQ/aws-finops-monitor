@@ -9,66 +9,46 @@ Monitor de costes de AWS con alertas a Telegram.
 
 ## Qué hace
 
-Cada 24h se conecta a Cost Explorer, lee los costes del mes, los agrupa por servicio y manda el resumen a Telegram. También compara el coste del día con los 7 anteriores para detectar gastos anómalos.
+- Lee los costes de AWS Cost Explorer agrupados por servicio
+- Compara el coste de ayer con el histórico de los últimos días y avisa si se sale de lo normal, indicando cuánto por encima está
+- Manda el resumen diario a Telegram, y también una alerta si algo falla en la ejecución
+- Incluye un modo demo (`--demo`) para probar la lógica sin necesidad de credenciales reales de AWS
 
-## Stack
+## Arquitectura
 
-Python + boto3, desplegado en Lambda con EventBridge para que se ejecute solo. Todo gestionado con Terraform y desplegado vía GitHub Actions.
+EventBridge Scheduler dispara la Lambda una vez al día → la Lambda lee Cost Explorer con boto3 → calcula si hay anomalía → manda el mensaje a Telegram.
 
-## Estructura
+La autenticación con AWS se hace con el rol IAM de la propia Lambda, sin claves de acceso estáticas. Las credenciales de Telegram se guardan cifradas en Parameter Store, no en variables de entorno.
 
-```
-aws-finops-monitor/
-├── .github/workflows/deploy.yml
-├── terraform/
-│   ├── main.tf
-│   ├── variables.tf
-│   └── outputs.tf
-├── monitor.py
-├── requirements.txt
-└── .env.example
-```
+## Tecnologías
+
+- Python 3.13
+- boto3 (Cost Explorer, IAM, Parameter Store)
+- Telegram Bot API
+- Terraform — infraestructura como código: rol IAM, función Lambda, EventBridge Scheduler
+- pytest — tests de la detección de anomalías, las llamadas a Cost Explorer y el formateo de mensajes
+- GitHub Actions — CI/CD: tests automáticos en cada push y despliegue a Lambda si pasan
 
 ## Probarlo en local
-
-Como mi cuenta de AWS está prácticamente a 0€, hay un modo demo con datos simulados:
-
-```bash
-python monitor.py --demo            # caso normal
-python monitor.py --demo --anomalia # caso alerta
-```
-
-En Lambda los flags se ignoran, usa datos reales.
-
-## Setup
 
 ```bash
 git clone https://github.com/M0r3n0SVQ/aws-finops-monitor.git
 cd aws-finops-monitor
 python -m venv venv
-source venv/bin/activate    # o venv\Scripts\activate en Windows
-pip install -r requirements.txt
-cp .env.example .env        # rellenar las 4 variables
-python monitor.py
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+pip install -r requirements.txt -r requirements-dev.txt
+cp .env.example .env  # Rellena tus credenciales de AWS y Telegram
+python monitor.py --demo
 ```
 
-## Despliegue
+El modo `--demo` simula los datos para no tener que tocar AWS de verdad. Para forzar una anomalía de prueba: `python monitor.py --demo --anomalia`.
+
+## Tests
 
 ```bash
-cd terraform
-terraform init
-terraform apply
+pytest -v
 ```
 
-## Estado
+## Estado del proyecto
 
-Hecho:
-- Lectura de costes desde Cost Explorer + alertas Telegram
-- Despliegue en Lambda con EventBridge diario
-- Terraform + GitHub Actions
-- Detección de anomalías con media y desviación
-- Modo demo para iterar en local
-- Tests con pytest
-
-Pendiente:
-- Detección de anomalías con datos reales de Cost Explorer (ahora solo funciona en modo demo)
+Desplegado y corriendo en producción, con despliegue automático desde GitHub Actions en cada push a master.
