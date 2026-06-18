@@ -59,13 +59,6 @@ resource "aws_lambda_function" "finops_monitor" {
   role          = aws_iam_role.lambda_role.arn
   handler       = "monitor.handler"
   runtime       = "python3.13"
-
-  environment {
-    variables = {
-      TELEGRAM_BOT_TOKEN = var.telegram_bot_token
-      TELEGRAM_CHAT_ID   = var.telegram_chat_id
-    }
-  }
 }
 
 resource "aws_iam_role" "eventbridge_role" {

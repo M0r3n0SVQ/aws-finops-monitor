@@ -175,13 +175,11 @@ def handler(event, context):
             grupos = get_costes(cliente, inicio, fin)
             mensaje = formatear_mensaje(grupos, inicio, fin)
         
-        print(mensaje)
         enviar_alerta_telegram(mensaje)
         return {'statusCode': 200, 'body': 'OK'}
     
     except Exception as e:
         error = f"AWS FinOps Monitor — Error: {str(e)}"
-        print(error)
         enviar_alerta_telegram(error)
         return {'statusCode': 500, 'body': error}
 
