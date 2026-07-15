@@ -5,7 +5,7 @@ import urllib.request
 import urllib.parse
 from datetime import datetime
 from dotenv import load_dotenv
-
+from datetime import datetime, timedelta
 load_dotenv()
 
 
@@ -42,6 +42,28 @@ def get_costes(cliente, inicio, fin):
         GroupBy=[{'Type': 'DIMENSION', 'Key': 'SERVICE'}]
     )
     return respuesta['ResultsByTime'][0]['Groups']
+
+def get_costes_diarios(cliente, dias=7):
+    """Llama a Cost Explorer y devuelve el coste total de cada uno de los últimos días.
+
+    Devuelve una lista de floats, ordenada del día más antiguo al más reciente.
+    """
+    hoy = datetime.today()
+    inicio = (hoy - timedelta(days=dias)).strftime('%Y-%m-%d')
+    fin = hoy.strftime('%Y-%m-%d')
+
+    respuesta = cliente.get_cost_and_usage(
+        TimePeriod={'Start': inicio, 'End': fin},
+        Granularity='DAILY',
+        Metrics=['UnblendedCost']
+    )
+
+    costes = []
+    for periodo in respuesta['ResultsByTime']:
+        cantidad = float(periodo['Total']['UnblendedCost']['Amount'])
+        costes.append(cantidad)
+
+    return costes
 
 
 def formatear_mensaje(grupos, inicio, fin):

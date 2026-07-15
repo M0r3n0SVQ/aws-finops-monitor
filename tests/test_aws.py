@@ -1,8 +1,7 @@
 """Tests para las funciones que interactúan con AWS Cost Explorer."""
 from unittest.mock import MagicMock
 
-from monitor import get_costes
-
+from monitor import get_costes, get_costes_diarios
 
 # Respuesta simulada de Cost Explorer, con la misma estructura que la real
 RESPUESTA_SIMULADA = {
@@ -61,3 +60,53 @@ def test_get_costes_respuesta_vacia():
     grupos = get_costes(cliente_falso, '2026-05-01', '2026-05-21')
 
     assert grupos == []
+
+def test_get_costes_diarios_devuelve_lista_con_cantidad_correcta():
+    """get_costes_diarios debe devolver una lista con un elemento por día."""
+    respuesta_fake = {
+        'ResultsByTime': [
+            {'TimePeriod': {'Start': '2026-07-10', 'End': '2026-07-11'},
+             'Total': {'UnblendedCost': {'Amount': '1.50', 'Unit': 'USD'}}},
+            {'TimePeriod': {'Start': '2026-07-11', 'End': '2026-07-12'},
+             'Total': {'UnblendedCost': {'Amount': '2.30', 'Unit': 'USD'}}},
+            {'TimePeriod': {'Start': '2026-07-12', 'End': '2026-07-13'},
+             'Total': {'UnblendedCost': {'Amount': '1.80', 'Unit': 'USD'}}},
+        ]
+    }
+    cliente_falso = MagicMock()
+    cliente_falso.get_cost_and_usage.return_value = respuesta_fake
+
+    costes = get_costes_diarios(cliente_falso, dias=3)
+
+    assert len(costes) == 3
+
+
+def test_get_costes_diarios_extrae_valores_correctamente():
+    """Los valores extraídos deben ser floats con los importes correctos."""
+    respuesta_fake = {
+        'ResultsByTime': [
+            {'TimePeriod': {'Start': '2026-07-10', 'End': '2026-07-11'},
+             'Total': {'UnblendedCost': {'Amount': '1.50', 'Unit': 'USD'}}},
+            {'TimePeriod': {'Start': '2026-07-11', 'End': '2026-07-12'},
+             'Total': {'UnblendedCost': {'Amount': '2.30', 'Unit': 'USD'}}},
+        ]
+    }
+    cliente_falso = MagicMock()
+    cliente_falso.get_cost_and_usage.return_value = respuesta_fake
+
+    costes = get_costes_diarios(cliente_falso, dias=2)
+
+    assert costes == [1.50, 2.30]
+
+
+def test_get_costes_diarios_llama_con_granularity_daily():
+    """get_costes_diarios debe pedir a AWS los datos con Granularity=DAILY y sin GroupBy."""
+    respuesta_fake = {'ResultsByTime': []}
+    cliente_falso = MagicMock()
+    cliente_falso.get_cost_and_usage.return_value = respuesta_fake
+
+    get_costes_diarios(cliente_falso, dias=7)
+
+    argumentos = cliente_falso.get_cost_and_usage.call_args.kwargs
+    assert argumentos['Granularity'] == 'DAILY'
+    assert 'GroupBy' not in argumentos
