@@ -7,6 +7,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 load_dotenv()
+import certifi
+os.environ.setdefault('SSL_CERT_FILE', certifi.where())
 
 
 def get_aws_client():
@@ -175,12 +177,12 @@ def handler(event, context):
         # Detectar si estamos en modo demo
         modo_demo = '--demo' in sys.argv
         con_anomalia = '--anomalia' in sys.argv
-        
+
         if modo_demo:
             # MODO DEMO datos simulados
             historico, coste_ayer = get_datos_demo(con_anomalia=con_anomalia)
             deteccion = detectar_anomalia(historico, coste_ayer)
-            
+
             if deteccion['es_anomalia']:
                 mensaje = formatear_mensaje_anomalia(deteccion, coste_ayer)
             else:
@@ -190,20 +192,35 @@ def handler(event, context):
                     f"Media últimos 7 días: ${deteccion['media']:.4f}\n"
                     f"Umbral de alerta: ${deteccion['umbral']:.4f}"
                 )
+            enviar_alerta_telegram(mensaje)
         else:
             # MODO REAL datos de AWS
             cliente = get_aws_client()
             inicio, fin = get_date_range()
             grupos = get_costes(cliente, inicio, fin)
             mensaje = formatear_mensaje(grupos, inicio, fin)
-        
-        enviar_alerta_telegram(mensaje)
+            enviar_alerta_telegram(mensaje)
+
+            # Detección de anomalías con datos reales
+            try:
+                costes_diarios = get_costes_diarios(cliente, dias=7)
+                historico = costes_diarios[:-1]
+                coste_ayer = costes_diarios[-1]
+                deteccion = detectar_anomalia(historico, coste_ayer)
+
+                if deteccion['es_anomalia']:
+                    mensaje_anomalia = formatear_mensaje_anomalia(deteccion, coste_ayer)
+                    enviar_alerta_telegram(mensaje_anomalia)
+            except Exception as e:
+                print(f"Error al comprobar anomalías: {e}")
+
         return {'statusCode': 200, 'body': 'OK'}
-    
-    except Exception as e:
-        error = f"AWS FinOps Monitor — Error: {str(e)}"
-        enviar_alerta_telegram(error)
-        return {'statusCode': 500, 'body': error}
+
+    except Exception as error:
+        mensaje = f"AWS FinOps Monitor — Error: {error}"
+        print(mensaje)
+        enviar_alerta_telegram(mensaje)
+        return {'statusCode': 500, 'body': str(mensaje)}
 
 
 if __name__ == "__main__":
